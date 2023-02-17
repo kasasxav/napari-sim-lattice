@@ -1,0 +1,2 @@
+[napari.manifest]
+napari-sim = napari_sim:napari.yaml

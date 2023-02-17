@@ -1,0 +1,14 @@
+name: napari-sim
+contributions:
+  commands:
+  - id: napari-sim.sim_widget
+    title: Reconstruct SIM data
+    python_name: napari_sim.main_module:sim_widget
+  - id: napari-sim.wf_widget
+    title: Widefield
+    python_name: napari_sim.main_module:wf_widget
+  widgets:
+  - command: napari-sim.sim_widget
+    display_name: SIM Reconstruction
+  - command: napari-sim.wf_widget
+    display_name: Widefield

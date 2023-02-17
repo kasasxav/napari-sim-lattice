@@ -1,0 +1,5 @@
+Metadata-Version: 2.1
+Name: napari-sim
+Version: 0.0.1
+Classifier: Framework :: napari
+License-File: LICENSE
