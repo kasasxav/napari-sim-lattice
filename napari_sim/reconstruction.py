@@ -69,7 +69,7 @@ class Reconstruction:
         sx, sy = np.unravel_index(self._otf.argmax(), self._otf.shape)
         g = zerosuppression(sx, sy, int(self._nx), int(self._nx), 4)
         self._otf_z = g * self._otf
-        self._p = ((self._nx / 2) / self._px) / 2
+        self._p = self._nx / self._px
 
     def finetune_periodicity(self, c):
         c_0 = np.multiply(c[0, :, :], np.conj(self._otf))
