@@ -36,8 +36,8 @@ class Reconstruction:
         self._frames = np.shape(_data)[0]
         pos = np.sqrt(self._frames)
         ps = range(self._frames)
-        x = np.divide(np.floor(np.divide(ps, pos)), pos-1)*self._px
-        y = np.divide(np.mod(ps, pos), pos-1)*self._px
+        x = np.divide(np.floor(np.divide(ps, pos)), pos)*self._px
+        y = np.divide(np.mod(ps, pos), pos)*self._px
         shifts = np.transpose(np.array((x, y)))
         _data_desc = de_scan(_data, shifts)
         return _data_desc[:, 20:-20, 20:-20]
@@ -52,8 +52,8 @@ class Reconstruction:
         self._harm = (np.sqrt(self._frames) - 1) / 2
         x = np.reshape(np.floor(np.divide(ps, pos)), (1, self._frames))
         y = np.reshape(np.mod(ps, pos), (1, self._frames))
-        k = np.tile(np.divide(x, pos - 1), (self._frames, 1)) * self._px
-        l = np.tile(np.divide(y, pos - 1), (self._frames, 1)) * self._px
+        k = np.tile(np.divide(x, pos), (self._frames, 1)) * self._px
+        l = np.tile(np.divide(y, pos), (self._frames, 1)) * self._px
         self._x = x - self._harm
         self._y = y - self._harm
         m = np.tile(np.transpose(self._x), (1, self._frames))
