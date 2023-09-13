@@ -7,7 +7,7 @@ from concurrent.futures import Future
 
 @magic_factory
 def sim_widget(
-    image: napari.types.ImageData, pixel_size=65, periodicity=312, na=1.4, wvl=0.51, pad_px=2, offset=100, w=0.01, rad=0.7, cd=1, t=1
+    image: napari.types.ImageData, pixel_size=75, periodicity=200, na=1.4, wvl=0.51, pad_px=2, offset=100, w=0.01, rad=0.7, cd=1, t=1
 ) -> Future[napari.types.ImageData]:
 
     future: Future[napari.types.ImageData] = Future()
@@ -37,3 +37,4 @@ def sim_widget(
 def wf_widget(image: napari.types.ImageData) -> napari.types.ImageData:
     rec = Reconstruction()
     return rec.get_wf(image)
+

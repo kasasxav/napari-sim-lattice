@@ -3,7 +3,7 @@ from napari_sim.SignalProcessing import *
 
 class Reconstruction:
 
-    def __init__(self, pixel_size=65, periodicity=312, na=1.4, wvl=0.51, pad_px=0, offset=100, w=0.01,
+    def __init__(self, pixel_size=75, periodicity=200, na=1.4, wvl=0.51, pad_px=0, offset=100, w=0.01,
                  rad=0.7, cd=1, t=1):
         self._pixel_size = pixel_size / 2
         self._periodicity = periodicity
@@ -26,9 +26,21 @@ class Reconstruction:
         c_ = self.calculate_corrected_bands(c)
         a_ = self.estimate_parameters(c_)
         sr_ = self.combine_bands(c_, a_)
+        #return np.real(_data_desc)
+        #return np.log(np.abs(np.fft.fftshift(sr_,axes=(1,2))))
         return np.real(self.apodize(sr_))
 
     def get_wf(self, image):
+        _data = freq_pad(pad(np.double(image), self._pad_px))
+        _data_desc = self.align_data(_data)
+        c = self.calculate_bands(_data_desc)
+        self.calculate_otf()
+        #self.finetune_periodicity(c)
+        c_ = self.calculate_corrected_bands(c)
+        a_ = self.estimate_parameters(c_)
+        sr_ = self.combine_bands(c_, a_)
+        #return np.log(np.abs(np.fft.fftshift(c,axes=(1,2))))
+
         image_ = freq_pad(pad(np.double(image), self._pad_px))
         return np.real(np.sum(self.align_data(image_), 0))
 
@@ -36,8 +48,8 @@ class Reconstruction:
         self._frames = np.shape(_data)[0]
         pos = np.sqrt(self._frames)
         ps = range(self._frames)
-        x = np.divide(np.floor(np.divide(ps, pos)), pos-1)*self._px
-        y = np.divide(np.mod(ps, pos), pos-1)*self._px
+        x = np.divide(np.floor(np.divide(ps, pos)), pos)*self._px
+        y = np.divide(np.mod(ps, pos), pos)*self._px
         shifts = np.transpose(np.array((x, y)))
         _data_desc = de_scan(_data, shifts)
         return _data_desc[:, 20:-20, 20:-20]
@@ -52,8 +64,8 @@ class Reconstruction:
         self._harm = (np.sqrt(self._frames) - 1) / 2
         x = np.reshape(np.floor(np.divide(ps, pos)), (1, self._frames))
         y = np.reshape(np.mod(ps, pos), (1, self._frames))
-        k = np.tile(np.divide(x, pos - 1), (self._frames, 1)) * self._px
-        l = np.tile(np.divide(y, pos - 1), (self._frames, 1)) * self._px
+        k = np.tile(np.divide(x, pos), (self._frames, 1)) * self._px
+        l = np.tile(np.divide(y, pos), (self._frames, 1)) * self._px
         self._x = x - self._harm
         self._y = y - self._harm
         m = np.tile(np.transpose(self._x), (1, self._frames))
@@ -69,7 +81,7 @@ class Reconstruction:
         sx, sy = np.unravel_index(self._otf.argmax(), self._otf.shape)
         g = zerosuppression(sx, sy, int(self._nx), int(self._nx), 4)
         self._otf_z = g * self._otf
-        self._p = ((self._nx / 2) / self._px) / 2
+        self._p = self._nx / self._px
 
     def finetune_periodicity(self, c):
         c_0 = np.multiply(c[0, :, :], np.conj(self._otf))
@@ -97,14 +109,17 @@ class Reconstruction:
 
     def calculate_corrected_bands(self, c):
         self._shifts = np.transpose(np.array((np.squeeze(self._x), np.squeeze(self._y))) * self._p)
+        #print(self._x)
         c_ = shift_image(c, self._shifts)
-        otf_ = np.tile(np.reshape(np.conj(self._otf), (1, *np.shape(self._otf))), (np.shape(c_)[0], 1, 1))
-        otf_ = shift_image(otf_, self._shifts)
-        return np.multiply(c_, otf_)
+        #otf_ = np.tile(np.reshape(np.conj(self._otf), (1, *np.shape(self._otf))), (np.shape(c_)[0], 1, 1))
+        #otf_ = shift_image(otf_, self._shifts)
+        #return np.multiply(c_, otf_)
+        return c_
 
     def estimate_parameters(self, c_):
         s0 = np.fft.fftshift(np.abs(U.discArray((self._nx, self._nx),
                                                 (self._na / self._wvl) / (1 / (self._nx * (self._pixel_size / 1000))))))
+        #print(self._nx)
         i_c = int((self._frames - 1) / 2)
         am = np.zeros((np.shape(c_)[0])).astype(complex)
         cp0_ = c_[i_c, :, :] * np.conj(c_[i_c, :, :])

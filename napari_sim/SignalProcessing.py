@@ -141,7 +141,7 @@ def freq_pad(arr):
     arr = np.fft.fft2(arr)
     nz, nx, ny = arr.shape
     out = np.zeros((nz, 2*nx, 2*nx), arr.dtype).astype(np.complex64)
-    nxh = np.int(nx/2)
+    nxh = np.int_(nx/2)
 
     out[:, :nxh, :nxh] = arr[:, :nxh, :nxh]
     out[:, :nxh, 3 * nxh:4 * nxh] = arr[:, :nxh, nxh:nx]
